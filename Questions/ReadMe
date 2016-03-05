@@ -1,0 +1,202 @@
+1. Why would you consider a Scripting Language as JavaScript as your Backend Platform.
+
+A great thing with JavaScript is that, not only you can use the same language for client and server side, but you also can use JSON, a subset of the "JavaScript Object Notation", for transport on the network and to store data in NoSQL database. Databases which as MongoDB, CouchDB, Riak, or wakandaDB also works with JavaScript instead of SQL. It is fast to implement features managing formats changing every time, and it is also fast to test and update the application. The use of NodeJs and Express makes it easy to extend and update the application. Therefore is the use of Javascript as a backend also very flexible.
+
+2. Explain Pros & Cons in using Node.js + Express to implement your Backend
+
+-----Pros-----
+
+- With a Java backend, you will usually still need Javascript for your frontend, meaning you will have to switch between
+Java and JavaScript constantly. Using 1 language for both sides is simply easier, and makes it easier to migrate code.
+
+- For using tools like Maven for a Java backend, you will need to specify it in the XML file. Everything is more
+accessible with Node.
+
+- JSON is a core part of JavaScript, so you don't need any additional libraries, or worry about formatting as much.
+
+- Node.js is faster.
+
+-----Cons-----
+
+- Java has 20 years of experience when it comes to server-side programming. It is therefore way safer.
+
+- Javascript might lack utility classes depending on what the desired program is. Java developers have invested
+a lot of time into complex packages for more scientific work.
+
+- Functions in JavaScript can be confusing when functions that don't get any answer return values such as undefined,
+NaN and null.
+
+- JavaScript is prone to deadlocks. If you don't write simple code and make sure that it works, the entire Server
+might lock up as a result.
+
+3. Explain strategies to implement a Node.js based server architecture that still could take advantage of a multi-core Server.
+
+A strategy to handle these CPU intensive computations could be the use of a module that enables “clustering” Node.js which runs as many dedicated single threaded processes under a master Node.js process. In Node.js clustering, the Node.js server consists of multiple processes executing on the same processor, typically one for each core. You start the main process called the master process. Master process starts and manages other processes called worker processes which do the actual work of handling incoming requests. Although using a cluster module sounds complex in theory, it is very straightforward to implement. To start using it, you have to include it in your Node.js application:
+
+var cluster = require('cluster);
+
+A cluster module executes the same Node.js process multiple times. Therefore, the first thing you need to do is to identify what portion of the code is for the master process and what portion is for the workers. The cluster module allows you to identify the master process as follows:
+
+if(cluster.isMaster) { ... }
+The master process is the process you initiate, which in turn initialize the workers. To start a worker process inside a master process, we’ll use the fork() method:
+
+cluster.fork();
+
+
+
+4. Explain the Express concept middleware.
+
+Since Express only supports some basic features, the Express middleware is a possibility for expand the amount of features, according to your needs. That means that Express middlewares are pluggable JavaScript components, which make Express apps very modular, flexible, and extensible. A middleware is a function with access to the request and repsonse object, well as the next middleware in line. Since middleware are executed serially, their order of inclusion is important. If the current middleware is not ending the request-response cycle, it is important to call next() to pass on the control to the next middleware, else the request will be left hanging.
+
+
+-----Middleware-----
+var express = require("express");
+var app = express();
+
+var fruits = [
+    "Mango",
+    "Apple",
+    "Orange"
+]
+
+app.use("fruits/:name", function(req, res, next){
+    if(fruits.contains(req.params.name)) {
+        console.log('Fruit found:', req.params.name)
+    }else{
+        console.log('Fruit not found');
+    }
+    next();
+}, function(req, res, next){
+    console.log('Request: ', req.method);
+    next();
+});
+
+5. Explain how to implement sessions.
+
+Server side technologies can implement state or server side sessions using one or more of the following methods:
+
+HTTP cookies.
+Query string parameters, for example: /index.php?session_id=some_unique_session_code.
+Hidden variables within web forms
+
+A user's session for a website exists in temporary memory only while the user is reading and navigating the website. Web browsers normally delete session cookies when the user closes the browser.
+
+-----Basic session setup------
+var express = require('express');
+var app = express();
+
+app.use(express.cookieParser());
+app.use(express.session({secret: '420691337asd'}));
+
+app.get('/SessionExample', function(req, res) {
+    if(req.session.lastPage) {
+        res.write('Last page was: ' + req.session.lastPage + '. ');
+    }
+
+    req.session.lastPage = '/SessionExample';
+    res.send('Hello World');
+});
+
+6. Compare the express strategy toward (server side) templating with the one you used with Java on second semester.
+
+A web template system uses a template processor to combine web templates to form finished web pages, possibly using some data source to customize the pages or present a large amount of content on similar-looking pages. Server side templating can be characterized like this: The controller gets some data from the model and pass it on to the view. The view then sends some data back to the controller, and then back to the model.
+
+On the second semester did we use the mvc pattern like this: Model -> Controller -> Servlet/JSP
+
+And on fourth semester are we using the mvc pattern like this: Model -> Controller/Router -> Jade/EJS/Handlebars
+
+Using Jade, EJS or Handlebars is much equal to how we used JSP on second semester. They all have some different syntax, but all of them can be used to render a html page, based on some logical expressions. In JSP we used Java to write the logical behavior and with the other ones we use JavaScript. That means when we used Java for our backend, we had to use JSP, with JavaScript we have the other three options.
+
+
+
+7. Explain your strategy for implementing a REST-API with Node/Express and show how you can "test" all the four CRUD operations programmatically using for example the Request package.
+
+
+
+8. Explain, using relevant examples, about testing JavaScript code, relevant packages (Mocha etc.) and how to test asynchronous code
+
+To test JavaScript code, we can install and use the test librabry "Mocha". In Mocha we use an describe block, which corresponds to a test suite where we can place all our test. The describe block takes two parameters,the first one is the name of the block, and the second is an anonymous function, where we can place the so called "it blocks" which corresponds to our test methods. Like the describe block the it blocks also takes two parameters; a name, and an anonymous function. Inside the anonymous function we can use the different assertion libraries like "chai", two assert different scenarios.
+
+Mocha: Testing framework.
+Chai: Assertion framework.
+
+-----AsyncMethod-----
+exports.calc = function(n1,n2,callback){
+    var result = n1+n2;
+    callback(result);
+    console.log(result)
+}
+
+----TestAsyncMethod----
+var chai = require('chai');
+var expect  = require('chai').expect;
+var calculator = require('./AsyncMethod');
+
+describe('Adds 2 numbers', function(){
+    it("Should return 10", function(done){
+        calculator.calc(5,5, function(res){
+            expect(res).to.be.equal(10);
+            done();
+        });
+    });
+});
+
+
+9. Explain, using relevant examples, different ways to mock out databases, HTTP-request etc?
+
+Normally when you make a test, it will be a benefit to isolate the test as much as possible, to avoid influence from other aspects. To isolate a test of a API, and to remove any dependencies, i could be a good idea to mock the HTTP requests and the database. This can be done by using a the module Sinon which is used for making stubs.
+
+Currently don't have the knowledge to be able to mock out a database, but a request is mocked out in the example below
+
+Modules required:
+Mocha: Testing framework.
+Chai: Assertion framework.
+Nock: Mocking framework.
+Request: Request framework.
+
+-----jokeModule.js-----
+var request = require("request");
+var URL = "http://jokes-plaul.rhcloud.com/api/joke";
+
+function getJoke(callback) {
+    request(URL, function (error, response, body) {
+        if(error || response.statusCode >=400){
+            return callback(error || body );
+        }
+        callback(null,JSON.parse(body));
+    });
+};
+
+module.exports = {
+    getJoke: getJoke
+}
+
+-----testJokeModule.js-----
+var expect = require("chai").expect;
+var jokes = require("../jokeModule");
+var nock = require("nock");
+var testJoke = {"id": 1234, "joke": "ha ha ha", "reference": "unknown"};
+
+var n = nock('http://jokes-plaul.rhcloud.com');
+
+
+//Mock is created here.
+describe('Joke API Get', function () {
+    before(function (done) {
+        n.get('/api/joke')
+            .reply(200,testJoke );
+        done();
+    });
+
+    it('Should fetch a joke', function (done) {
+        jokes.getJoke(function (err, joke) {
+            if (err) {
+                throw err;
+            }
+            expect(joke.reference).to.be.equal("unknown");
+            expect(joke).to.be.eql(testJoke);
+            done();
+        })
+    });
+});
+
